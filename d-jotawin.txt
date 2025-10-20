@@ -1,0 +1,210 @@
+d-jota-win/
+├── index.html
+├── css/
+│   └── style.css
+├── js/
+│   ├── app.js
+│   └── games.json
+├── assets/
+│   ├── logo.png
+│   ├── banner-red.jpg
+│   └── apk/
+│       └── d-jota-win.apk
+└── admin/
+    └── owner.html
+
+
+
+index.html (início)
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>D-JOTA WIN</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <header>
+    <img src="assets/logo.png" alt="D-JOTA WIN" class="logo" />
+    <a href="assets/apk/d-jota-win.apk" class="btn-download">Baixar APK</a>
+  </header>
+
+  <section class="hero">
+    <h1>BEM-VINDO AO <span style="color:#ff0033;">D-JOTA WIN</span></h1>
+    <p>+2.000 jogos, saques rápidos e bônus diários!</p>
+  </section>
+
+  <section class="games" id="gameList">
+    <!-- preenchido via JS -->
+  </section>
+
+  <section class="banking">
+    <h2>Depósitos & Saques</h2>
+    <ul>
+      <li>Pix (instantâneo)</li>
+      <li>Boleto (até 1h)</li>
+      <li>Cartão de crédito</li>
+      <li>USDT / BTC / ETH</li>
+    </ul>
+  </section>
+
+  <footer>
+    <a href="admin/owner.html">Painel do Dono</a>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
+
+
+
+css/estilo.css
+
+
+:root {
+  --red: #ff0033;
+  --dark: #1a0005;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--dark);
+  color: #fff;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: var(--red);
+}
+
+.logo {
+  height: 50px;
+}
+
+.btn-download {
+  background: #fff;
+  color: var(--red);
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+  background: url('../assets/banner-red.jpg') center/cover;
+}
+
+.games {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.game-card {
+  background: #2a0008;
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.game-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #000;
+}
+
+
+
+js/app.js
+
+
+// carrega lista de jogos
+fetch('js/games.json')
+  .then(r => r.json())
+  .then(list => {
+    const container = document.getElementById('gameList');
+    list.forEach(g => {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      card.innerHTML = `
+        <img src="${g.thumb}" alt="${g.name}" />
+        <h3>${g.name}</h3>
+        <button onclick="play('${g.id}')">Jogar</button>
+      `;
+      container.appendChild(card);
+    });
+  });
+
+function play(id) {
+  // redireciona para o jogo (iframe ou abre em nova aba)
+  window.open(`https://games.d-jota-win.com/play/${id}`, '_blank');
+}
+
+
+
+js/games.json (exemplo curto)
+
+
+[
+  { "id": "aviator", "name": "Aviator", "thumb": "https://cdn.example.com/aviator.jpg" },
+  { "id": "fortune-tiger", "name": "Fortune Tiger", "thumb": "https://cdn.example.com/tiger.jpg" },
+  { "id": "roleta-br", "name": "Roleta Brasileira", "thumb": "https://cdn.example.com/roleta.jpg" }
+]
+
+
+
+admin/owner.html (sacar lucro)
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Owner Cash-Out – D-JOTA WIN</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <h1>Painel do Dono</h1>
+  <p>Saldo acumulado: <strong id="balance">R$ 0,00</strong></p>
+
+  <form id="cashForm">
+    <label>Valor para sacar (R$)</label>
+    <input type="number" step="0.01" id="amount" required />
+    <label>Chave Pix</label>
+    <input type="text" id="pix" required />
+    <button type="submit">Sacar</button>
+  </form>
+
+  <script>
+    // simula saldo (integrar com backend real)
+    let balance = 12750.35;
+    document.getElementById('balance').innerText = balance.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+
+    document.getElementById('cashForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const val = parseFloat(document.getElementById('amount').value);
+      if (val > balance) return alert('Saldo insuficiente');
+      alert(`Saque de ${val.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})} solicitado para ${document.getElementById('pix').value}`);
+      balance -= val;
+      document.getElementById('balance').innerText = balance.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+    });
+  </script>
+</body>
+</html>
